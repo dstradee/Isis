@@ -87,7 +87,7 @@
 
         <main class="max-w-6xl mx-auto p-4 mt-6">
 
-            <!-- PESTAÑA 1: ANALÍTICA -->
+            <!-- PESTAÑA ANALÍTICA -->
             <div id="vista-analitica" class="space-y-6 block">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-brand-gray p-8 border border-[#2A2A2A] shadow-lg text-center md:text-left">
@@ -111,10 +111,11 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA 2: MENÚ DE CACHIMBAS -->
+            <!-- PESTAÑA: MENÚ CACHIMBAS -->
             <div id="vista-menu" class="hidden space-y-6">
+                <!-- FORMULARIO CREAR -->
                 <div class="bg-brand-gray p-8 border border-[#2A2A2A] shadow-lg">
-                    <h3 class="text-xl font-cinzel uppercase mb-6 border-b border-[#333] pb-4 text-brand-gold tracking-widest">Añadir Cachimba a la Carta</h3>
+                    <h3 class="text-xl font-cinzel uppercase mb-6 border-b border-[#333] pb-4 text-brand-gold tracking-widest">Añadir Sabor a la Carta</h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -159,22 +160,17 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                        <div>
-                            <label class="block mb-2 font-light text-brand-champagne text-xs uppercase tracking-[0.15em]">Ingredientes Clave</label>
-                            <input type="text" id="m-ing" placeholder="Manzana, menta..." class="w-full bg-brand-dark border border-[#333] p-4 text-brand-text focus:outline-none focus:border-brand-gold">
-                        </div>
-                        <div>
-                            <label class="block mb-2 font-light text-brand-champagne text-xs uppercase tracking-[0.15em]">Maridaje Sugerido</label>
-                            <input type="text" id="m-mar" placeholder="Té verde..." class="w-full bg-brand-dark border border-[#333] p-4 text-brand-text focus:outline-none focus:border-brand-gold">
-                        </div>
+                    <div class="mt-6">
+                        <label class="block mb-2 font-light text-brand-champagne text-xs uppercase tracking-[0.15em]">Ingredientes Clave</label>
+                        <input type="text" id="m-ing" placeholder="Manzana, menta..." class="w-full bg-brand-dark border border-[#333] p-4 text-brand-text focus:outline-none focus:border-brand-gold">
                     </div>
 
                     <button onclick="crearSabor()" id="btn-crear-sabor" class="mt-8 w-full bg-brand-gold text-brand-dark font-cinzel font-bold text-xl py-5 shadow-gold-glow uppercase tracking-widest hover:bg-[#E5C354] transition-all">
-                        Añadir a la Carta
+                        Añadir Sabor a la Carta
                     </button>
                 </div>
 
+                <!-- LISTA DE SABORES Y DISPONIBILIDAD -->
                 <div class="bg-brand-gray p-8 border border-[#2A2A2A] shadow-lg">
                     <h3 class="text-xl font-cinzel uppercase mb-6 border-b border-[#333] pb-4 text-brand-text tracking-widest">Control de Stock y Carta</h3>
                     <div id="lista-menu" class="space-y-4">
@@ -476,9 +472,8 @@
                 freshness: parseInt(document.getElementById('m-fre').value),
                 smoke: parseInt(document.getElementById('m-hum').value),
                 ingredients: document.getElementById('m-ing').value,
-                pairing: document.getElementById('m-mar').value,
                 disponible: true
-            };
+            }; // SIN MARIDAJE
             
             if(!data.name || !data.etiquetas) return alert("El Nombre y las Etiquetas son obligatorios.");
             btn.innerText = "⏳ Guardando...";
@@ -487,10 +482,10 @@
                 const sp = getSupabase();
                 const { error } = await sp.from('menu_shishas').insert([data]);
                 if (error) throw error;
-                ['m-nombre','m-etiquetas','m-desc','m-ing','m-mar'].forEach(id => document.getElementById(id).value = '');
+                ['m-nombre','m-etiquetas','m-desc','m-ing'].forEach(id => document.getElementById(id).value = '');
                 await cargarMenu();
             } catch(e) { alert("Error al crear. ¿Has ejecutado el SQL?"); }
-            btn.innerText = "Añadir a la Carta";
+            btn.innerText = "Añadir Sabor a la Carta";
         }
 
         async function toggleStock(id, estadoActual) {
