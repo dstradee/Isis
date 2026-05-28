@@ -16,9 +16,7 @@
                     colors: {
                         'brand-dark': '#121212',
                         'brand-gray': '#1A1A1A',
-                        'brand-light-gray': '#2A2A2A',
                         'brand-gold': '#D4AF37', 
-                        'brand-gold-dark': '#AA7C11',
                         'brand-champagne': '#F7E7CE',
                         'brand-text': '#E5E5E5'
                     },
@@ -36,9 +34,8 @@
     </script>
     <style> 
         body { margin: 0; padding: 0; background-color: #121212; color: #E5E5E5; }
-        * { border-radius: 2px !important; } /* Borde ínfimo para dar elegancia sin ser 100% cuadrado */
+        * { border-radius: 2px !important; }
         
-        /* Estilo elegante para el icono del calendario */
         input[type="date"]::-webkit-calendar-picker-indicator { 
             filter: invert(0.8) sepia(1) saturate(5) hue-rotate(5deg); 
             cursor: pointer; 
@@ -54,21 +51,20 @@
             transition: background-color 5000s ease-in-out 0s;
         }
 
-        /* Reemplazo de los colores inyectados por JS mediante CSS puro para no tocar el script */
-        .text-blue-500 { color: #F7E7CE !important; } /* Pasa a Champagne */
-        .text-green-500 { color: #E5E5E5 !important; } /* Pasa a Blanco roto */
+        /* Ajustes inyectados en JS sin romper el código original */
+        .text-blue-500 { color: #F7E7CE !important; } 
+        .text-green-500 { color: #E5E5E5 !important; } 
     </style>
 </head>
 <body class="bg-brand-dark text-brand-text font-poppins relative">
 
-    <header class="bg-brand-dark text-brand-text py-8 px-4 text-center border-b border-[#333] flex flex-col items-center">
-        <!-- Logo (Mantengo el SRC original por la regla, pero aplico filtro dorado sutil y sombra elegante) -->
-        <img src="https://raw.githubusercontent.com/dstradee/BocaBestia/32837c3ebd461a7c1b0f70992f8a3e4dbf88f3e4/LOGO%20CABECERA.png" alt="Isis Shisha Logo" class="w-[280px] md:w-[350px] max-w-full h-auto drop-shadow-[0_0_15px_rgba(212,175,55,0.3)] mb-2" style="filter: grayscale(100%) sepia(100%) hue-rotate(5deg) saturate(200%) brightness(0.9);">
+    <header class="bg-brand-dark text-brand-text py-10 px-4 text-center border-b border-brand-gold flex flex-col items-center shadow-gold-glow">
         
-        <p class="hidden mt-3 font-cinzel uppercase text-xl md:text-2xl text-brand-gold tracking-widest">Reservas</p>
+        <!-- LOGO EN TEXTO (Sustituye a la imagen antigua) -->
+        <div class="text-brand-gold opacity-80 text-5xl mb-3">☥</div>
+        <h1 class="text-5xl md:text-6xl font-cinzel uppercase tracking-widest text-brand-gold drop-shadow-[0_0_15px_rgba(212,175,55,0.4)]">Isis Shisha</h1>
+        <p class="mt-3 font-poppins font-light uppercase text-sm md:text-base text-brand-champagne tracking-[0.2em]">Reserva tu mesa al instante</p>
 
-        <h1 class="hidden text-5xl md:text-6xl font-cinzel uppercase tracking-widest text-brand-gold drop-shadow-[0_0_15px_rgba(212,175,55,0.4)]">Isis Shisha</h1>
-        <p class="hidden mt-2 font-poppins font-light uppercase text-sm md:text-base text-brand-text tracking-[0.2em]">Reserva tu mesa al instante</p>
     </header>
 
     <main class="max-w-xl mx-auto pt-10 px-4 pb-12">
@@ -76,7 +72,6 @@
             
             <div class="flex flex-col md:flex-row justify-between md:items-center border-b border-[#333] pb-6 mb-8 gap-6 md:gap-0">
                 <h2 id="titulo-principal" class="text-3xl font-cinzel uppercase text-brand-gold text-center md:text-left tracking-widest font-semibold">Reservar</h2>
-                <!-- BOTÓN SECUNDARIO (Outline) -->
                 <button id="btn-cambiar-vista" onclick="cambiarVista()" class="text-xs font-poppins font-semibold bg-transparent text-brand-gold border border-brand-gold px-6 py-3 uppercase transition-all duration-300 w-full md:w-auto hover:bg-brand-gold hover:text-brand-dark tracking-[0.15em]">
                     Modificar Reserva
                 </button>
@@ -117,7 +112,6 @@
                     <input type="tel" id="input-telefono" placeholder="Ej: 600123456" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required class="w-full bg-brand-dark border border-[#333] p-4 text-brand-text placeholder-[#555] focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold transition-colors font-poppins">
                 </div>
 
-                <!-- BOTÓN PRINCIPAL (Sólido Oro) -->
                 <button onclick="procesarReserva()" id="btn-reservar" class="mt-8 w-full bg-brand-gold text-brand-dark font-cinzel font-bold text-2xl py-5 shadow-gold-glow uppercase active:scale-[0.98] transition-all duration-300 tracking-widest border-none hover:shadow-gold-glow-hover hover:bg-[#E5C354]">
                     Confirmar Reserva
                 </button>
@@ -185,10 +179,14 @@
         </div>
     </div>
 
-    <!-- SCRIPT INTACTO -->
+    <!-- =================================================================== -->
+    <!-- LÓGICA DE JAVASCRIPT (NUEVA VERSIÓN INTACTA)                        -->
+    <!-- =================================================================== -->
     <script>
         let bloqueosGlobales = [];
         let diasCerradosGlobales = [];
+        let horariosGlobales = [];      
+        let bloqueosHorasGlobales = []; 
         let miReservaActual = null;
         let miZonaActual = null;
 
@@ -249,7 +247,7 @@
             if (!fechaInput.value || fechaInput.value < fechaMinima) { fechaInput.value = fechaMinima; }
 
             const fechaSeleccionada = fechaInput.value;
-            const fechaDate = new Date(fechaSeleccionada);
+            const fechaDate = new Date(fechaSeleccionada + 'T00:00:00'); 
             const diaSemana = fechaDate.getDay().toString();
 
             let estaCerradoSemanal = diasCerradosGlobales.includes(diaSemana);
@@ -265,17 +263,51 @@
             let esHoyReal = (fechaSeleccionada === hoyRealIso);
             let opcionesHTML = "";
 
-            for(let h = 8; h <= 23; h++) {
-                let minutosPosibles = (h === 23) ? ['00'] : ['00', '15', '30', '45'];
+            const horarioDia = horariosGlobales.find(h => h.dia_semana.toString() === diaSemana);
+
+            function timeToMins(t) {
+                if(!t) return null;
+                let p = t.split(':');
+                return parseInt(p[0]) * 60 + parseInt(p[1]);
+            }
+
+            for(let h = 0; h <= 23; h++) {
+                let minutosPosibles = ['00', '15', '30', '45'];
                 for(let m of minutosPosibles) {
-                    let minutosOpcion = (h * 60) + parseInt(m);
+                    let timeEnMins = (h * 60) + parseInt(m);
                     let minutosAhora = (horaReal.getHours() * 60) + horaReal.getMinutes();
-                    if (esHoyReal && minutosOpcion <= minutosAhora) continue;
+                    
+                    if (esHoyReal && timeEnMins <= minutosAhora) continue;
+
+                    if (horariosGlobales.length > 0) {
+                        if (!horarioDia) continue; 
+                        
+                        let inT1 = false; let inT2 = false;
+                        
+                        let a1M = timeToMins(horarioDia.apertura_1); let c1M = timeToMins(horarioDia.cierre_1);
+                        if (a1M !== null && c1M !== null && timeEnMins >= a1M && timeEnMins <= c1M) inT1 = true;
+                        
+                        let a2M = timeToMins(horarioDia.apertura_2); let c2M = timeToMins(horarioDia.cierre_2);
+                        if (a2M !== null && c2M !== null && timeEnMins >= a2M && timeEnMins <= c2M) inT2 = true;
+
+                        if (!inT1 && !inT2) continue;
+                    } else {
+                        if(h < 8 || (h === 23 && m !== '00')) continue;
+                    }
+
+                    let bloqueadoHora = bloqueosHorasGlobales.some(b => {
+                        if (b.fecha !== fechaSeleccionada) return false;
+                        let bIni = timeToMins(b.hora_inicio);
+                        let bFin = timeToMins(b.hora_fin);
+                        return (timeEnMins >= bIni && timeEnMins <= bFin);
+                    });
+                    if (bloqueadoHora) continue; 
 
                     let horaFormateada = h < 10 ? '0' + h : h; 
                     opcionesHTML += `<option value="${horaFormateada}:${m}">${horaFormateada}:${m}</option>`;
                 }
             }
+            
             if (opcionesHTML === "") opcionesHTML = `<option value="">Cerrado / Sin horas</option>`;
             selectHora.innerHTML = opcionesHTML;
         }
@@ -307,15 +339,20 @@
                     return; 
                 }
 
-                const [respBloqueos, respDias] = await Promise.all([
+                const [respBloqueos, respDias, respHorarios, respBloqueosHoras] = await Promise.all([
                     sp.from('bloqueos').select('*'),
-                    sp.from('dias_cerrados').select('dias').eq('id', 1).single()
+                    sp.from('dias_cerrados').select('dias').eq('id', 1).single(),
+                    sp.from('horarios_semana').select('*'),
+                    sp.from('bloqueos_horas').select('*')
                 ]);
 
                 if (respBloqueos.data) bloqueosGlobales = respBloqueos.data;
                 if (respDias.data && respDias.data.dias) diasCerradosGlobales = respDias.data.dias.split(',');
+                if (respHorarios.data) horariosGlobales = respHorarios.data;
+                if (respBloqueosHoras.data) bloqueosHorasGlobales = respBloqueosHoras.data;
 
                 actualizarHoras('input-fecha', 'input-hora');
+
             } catch (err) {
                 console.warn("Fallo de red conectando con BD de configuración. Modo offline visual.");
             }
