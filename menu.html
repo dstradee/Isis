@@ -78,7 +78,7 @@
             CARTA DE SABORES
         </h1>
         <p class="text-sm text-champagne/70 max-w-2xl mx-auto font-light leading-relaxed">
-            Navega por nuestras combinaciones exclusivas. Si el sabor no está disponible temporalmente, aparecerá marcado.
+            Navega por nuestras combinaciones exclusivas. El estado de disponibilidad se actualiza en tiempo real.
         </p>
     </div>
 </section>
@@ -140,15 +140,9 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                <div class="bg-darkCard p-4 rounded-lg border border-goldDeep/10">
-                    <span class="text-[10px] text-goldDeep block uppercase tracking-widest font-cinzel mb-1">Ingredientes Clave</span>
-                    <p id="modal-ingredients" class="text-champagne font-light">...</p>
-                </div>
-                <div class="bg-darkCard p-4 rounded-lg border border-goldDeep/10">
-                    <span class="text-[10px] text-goldDeep block uppercase tracking-widest font-cinzel mb-1">Maridaje Sugerido</span>
-                    <p id="modal-pairing" class="text-champagne font-light">...</p>
-                </div>
+            <div class="bg-darkCard p-4 rounded-lg border border-goldDeep/10 mt-4">
+                <span class="text-[10px] text-goldDeep block uppercase tracking-widest font-cinzel mb-1">Ingredientes Clave</span>
+                <p id="modal-ingredients" class="text-champagne font-light text-sm">...</p>
             </div>
 
             <div class="flex pt-2">
@@ -175,7 +169,6 @@
     const SUPABASE_URL = 'https://khpocrsupatikprigpxw.supabase.co'; 
     const SUPABASE_ANON_KEY = 'sb_publishable_Z0soHkdqh0SBjSTY-yBayA_anFNj5IB';
     
-    // Función segura para cargar Supabase cuando la librería esté lista
     function getSupabase() {
         if(!window.supabase) throw new Error("Supabase no cargado todavía.");
         return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -184,6 +177,7 @@
     let shishasData = [];
     let savedFavorites = [];
     let etiquetasGlobales = new Set();
+    let currentFilter = 'all';
 
     try {
         const localData = localStorage.getItem('isis_shisha_favorites');
@@ -192,9 +186,22 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         updateFavBadge();
-        // Le damos un margen de 100ms para asegurar que el script de Supabase de la cabecera está listo
-        setTimeout(cargarDesdeSupabase, 100);
+        setTimeout(iniciarSistema, 100);
     });
+
+    async function iniciarSistema() {
+        await cargarDesdeSupabase();
+        
+        // --- REAL-TIME LISTENER ---
+        // Escucha en vivo los cambios en el menú y recarga la pantalla al instante.
+        const sp = getSupabase();
+        sp.channel('custom-menu-channel')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'menu_shishas' }, payload => {
+              console.log("¡Actualización en vivo detectada!", payload);
+              cargarDesdeSupabase();
+          })
+          .subscribe();
+    }
 
     async function cargarDesdeSupabase() {
         try {
@@ -216,15 +223,14 @@
                 freshness: d.freshness || 3,
                 smoke: d.smoke || 3,
                 ingredients: d.ingredients || "Secreto del Lounge",
-                pairing: d.pairing || "Consultar al Shishero",
                 icon: d.icon || "fa-solid fa-cloud",
                 disponible: d.disponible
             }));
 
             generarFiltrosDinamicos();
-            filterShishas('all');
+            filterShishas(currentFilter); // Mantiene el filtro en el que estábamos parados
         } catch(e) {
-            document.getElementById('filters-container').innerHTML = '<p class="text-brandRed">Error conectando con la carta. (¿Has ejecutado el SQL en Supabase?)</p>';
+            document.getElementById('filters-container').innerHTML = '<p class="text-brandRed">Error conectando con la carta.</p>';
         }
     }
 
@@ -251,6 +257,7 @@
     }
 
     function filterShishas(category) {
+        currentFilter = category;
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.className = "filter-btn px-5 py-2 rounded-full font-cinzel text-xs tracking-wider uppercase transition-all duration-300 border border-goldDeep/40 text-champagne/80 hover:border-goldPrimary hover:text-goldPrimary bg-darkCard";
         });
@@ -370,10 +377,7 @@
         
         localStorage.setItem('isis_shisha_favorites', JSON.stringify(savedFavorites));
         updateFavBadge();
-        
-        const activeFilter = document.querySelector('.filter-btn.active');
-        const currentCategory = activeFilter ? activeFilter.id.replace('filter-', '') : 'all';
-        filterShishas(currentCategory);
+        filterShishas(currentFilter);
     }
 
     function updateFavBadge() {
@@ -407,7 +411,6 @@
         document.getElementById('modal-smoke-bar').style.width = `${(s.smoke/5)*100}%`;
 
         document.getElementById('modal-ingredients').innerText = s.ingredients;
-        document.getElementById('modal-pairing').innerText = s.pairing;
 
         updateModalFavoriteButton(s.id);
 
